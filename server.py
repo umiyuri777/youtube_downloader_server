@@ -1,9 +1,21 @@
 import subprocess
-from flask import Flask, jsonify, request, make_response
+from flask import Flask, jsonify, request, make_response, send_file
 from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
+
+@app.route('/file_download', methods=['GET'])
+def file_download(file_name):
+    file_path = "./" + file_name
+    try:
+        return send_file(file_path, as_attachment=True, mimetype="video/mp4")
+    except Exception as e:
+        return str(e)
+
+
+
+
 
 @app.route('/download', methods=['GET'])
 def download_video():
@@ -17,8 +29,9 @@ def download_video():
 
     try:
         # yt-dlpコマンドを実行
-        result = subprocess.run(omakeurl, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
         print("ダウンロードを開始します...", flush=True)
+        result = subprocess.run(omakeurl, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+
 
         # while True:
         #     # プロセスの出力をリアルタイムで読み取る
