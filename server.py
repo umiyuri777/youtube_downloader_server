@@ -5,9 +5,9 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-@app.route('/file_download', methods=['GET'])
-def file_download(file_name):
-    file_path = "./" + file_name
+@app.route('/file_download', methods=["GET", "POST"])
+def file_download():
+    file_path = "./sample.mp4"
     try:
         return send_file(file_path, as_attachment=True, mimetype="video/mp4")
     except Exception as e:
@@ -17,15 +17,19 @@ def file_download(file_name):
 
 
 
-@app.route('/download', methods=['GET'])
+@app.route('/download', methods=["GET", "POST"])
 def download_video():
-    # url = request.form.get('url')
+    data = request.get_json()
+    url = data.get('url')
 
-    omakeurl = 'yt-dlp -f "bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]" https://www.youtube.com/watch?v=xjfN8DFCBu0'
+    print(f'debug: URL={url}', flush=True)
 
-    # if not url:
-    #     # URLが指定されていない場合
-    #     return 'Error: URL is missing'
+    if not url:
+        # URLが指定されていない場合
+        return 'Error: URL is missing'
+
+    omakeurl = 'yt-dlp -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]" --output "sample.%(ext)s" --concurrent-fragments 5 ' + url
+
 
     try:
         # yt-dlpコマンドを実行
