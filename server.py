@@ -1,20 +1,24 @@
 import subprocess
 from flask import Flask, jsonify, request, make_response, send_file
 from flask_cors import CORS
+from werkzeug.serving import WSGIRequestHandler
+from yt_dlp import YoutubeDL
 
 app = Flask(__name__)
 CORS(app)
 
 @app.route('/file_download', methods=["GET", "POST"])
 def file_download():
-    file_path = "./sample.mp4"
+    file_path = request.get_json().get('videoTitle')
+    print(f'debug: ファイルパス={file_path}', flush=True)
     try:
+        print(f'debug: ファイルを転送します', flush=True)
         return send_file(file_path, as_attachment=True, mimetype="video/mp4")
     except Exception as e:
         return str(e)
-
-
-
+    # finally:
+    #     print(f'debug: ファイルを削除します', flush=True)
+    #     subprocess.run(["rm", file_path])
 
 
 @app.route('/download', methods=["GET", "POST"])
@@ -28,7 +32,7 @@ def download_video():
         # URLが指定されていない場合
         return 'Error: URL is missing'
 
-    omakeurl = 'yt-dlp -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]" --output "sample.%(ext)s" --concurrent-fragments 5 ' + url
+    omakeurl = 'yt-dlp -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]" --output "%(title)s.%(ext)s" --concurrent-fragments 5 ' + url
 
 
     try:
@@ -67,5 +71,6 @@ def download_video():
         return make_response(jsonify(response))
 
 if __name__ == '__main__':
+    WSGIRequestHandler.protocol_version = "HTTP/1.1"
     app.debug = True
     app.run(host='127.0.0.1', port=7000)
