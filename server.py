@@ -9,16 +9,16 @@ CORS(app)
 
 @app.route('/file_download', methods=["GET", "POST"])
 def file_download():
-    file_path = request.get_json().get('videoTitle')
+    file_path = request.get_json().get('videoTitle') + '.mp4'
     print(f'debug: ファイルパス={file_path}', flush=True)
-    try:
-        print(f'debug: ファイルを転送します', flush=True)
-        return send_file(file_path, as_attachment=True, mimetype="video/mp4")
-    except Exception as e:
-        return str(e)
-    # finally:
-    #     print(f'debug: ファイルを削除します', flush=True)
-    #     subprocess.run(["rm", file_path])
+
+    # responseを作成
+    response = make_response()
+    response.data = open(file_path, 'rb').read()
+    response.headers['Content-Disposition'] = 'attachment; filename=omake.mp4'
+    response.mimetype = 'video/mp4'
+    
+    return response
 
 
 @app.route('/download', methods=["GET", "POST"])
