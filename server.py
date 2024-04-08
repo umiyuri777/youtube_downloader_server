@@ -3,21 +3,26 @@ from flask import Flask, jsonify, request, make_response, send_file
 from flask_cors import CORS
 from werkzeug.serving import WSGIRequestHandler
 from yt_dlp import YoutubeDL
+import os
 
 app = Flask(__name__)
 CORS(app)
 
 @app.route('/file_download', methods=["GET", "POST"])
 def file_download():
-    file_path = request.get_json().get('videoTitle') + '.mp4'
+    file_path = 'videofiles/' + request.get_json().get('videoTitle') + '.mp4'
     print(f'debug: ファイルパス={file_path}', flush=True)
+
+    dir = os.getcwd()
+
+    print("dir: " + dir)
 
     # responseを作成
     response = make_response()
     response.data = open(file_path, 'rb').read()
     response.headers['Content-Disposition'] = 'attachment; filename=omake.mp4'
     response.mimetype = 'video/mp4'
-    
+
     return response
 
 
@@ -32,7 +37,7 @@ def download_video():
         # URLが指定されていない場合
         return 'Error: URL is missing'
 
-    omakeurl = 'yt-dlp -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]" --output "%(title)s.%(ext)s" --concurrent-fragments 5 ' + url
+    omakeurl = 'yt-dlp -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]" --output "/videofiles/%(title)s.%(ext)s" --concurrent-fragments 5 ' + url
 
 
     try:
