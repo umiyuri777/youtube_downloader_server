@@ -8,14 +8,16 @@ import os
 app = Flask(__name__)
 CORS(app)
 
+## ダウンロードした動画をクライアントに返す関数
 @app.route('/file_download', methods=["GET", "POST"])
 def file_download():
-    file_path = 'videofiles/' + request.get_json().get('videoTitle') + '.mp4'
-    print(f'debug: ファイルパス={file_path}', flush=True)
-
-    dir = os.getcwd()
-
+    # 現在のディレクトリを取得
+    dir = os.getcwd().replace('\\', '/')
     print("dir: " + dir)
+
+    file_path = dir + '/videofiles/' + request.get_json().get('videoTitle') + '.mp4'
+
+    print(f'debug: ファイルパス={file_path}', flush=True)
 
     # responseを作成
     response = make_response()
@@ -25,7 +27,7 @@ def file_download():
 
     return response
 
-
+# サーバに動画をダウンロードする関数
 @app.route('/download', methods=["GET", "POST"])
 def download_video():
     data = request.get_json()
@@ -37,13 +39,13 @@ def download_video():
         # URLが指定されていない場合
         return 'Error: URL is missing'
 
-    omakeurl = 'yt-dlp -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]" --output "/videofiles/%(title)s.%(ext)s" --concurrent-fragments 5 ' + url
+    command = 'yt-dlp -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]" --output "/videofiles/%(title)s.%(ext)s" --concurrent-fragments 5 ' + url
 
 
     try:
         # yt-dlpコマンドを実行
         print("ダウンロードを開始します...", flush=True)
-        result = subprocess.run(omakeurl, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
 
 
         # ダウンロードが正常に終了したかどうかを判定
