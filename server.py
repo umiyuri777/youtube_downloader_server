@@ -46,14 +46,6 @@ def download_video():
         result = subprocess.run(omakeurl, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
 
 
-        # while True:
-        #     # プロセスの出力をリアルタイムで読み取る
-        #     output = result.stdout.readline()   # 1行読み取る
-        #     if output == '' and result.returncode is not None:  # プロセスが終了していたらループを抜ける
-        #         break
-        #     if output:
-        #         yield output  # 1行返す
-
         # ダウンロードが正常に終了したかどうかを判定
         if result.returncode == 0:
             print("debug: Download successful", flush=True)
